@@ -150,6 +150,10 @@ h3 { margin: 0; font-size: 14px; font-weight: 600; }
 .delta.down { color: var(--negative); }
 
 /* Editor */
+.meta-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.meta-fields label { display: grid; gap: 6px; color: var(--muted); font-size: var(--fs-small); }
+.meta-fields input { height: var(--control-height); background: var(--ground); color: var(--text); border: 1px solid var(--control); border-radius: 6px; padding: 0 10px; font: inherit; }
+.meta-fields input:focus { border-color: var(--accent); outline: none; }
 .editor .palette { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
 .chip { height: 28px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--control); background: transparent; cursor: pointer; font-size: var(--fs-small); }
 .chip.on { border-color: var(--text); background: var(--raised); }
@@ -183,7 +187,7 @@ h3 { margin: 0; font-size: 14px; font-weight: 600; }
   .title-row { flex-direction: column; align-items: stretch; }
   .title-actions .btn { flex: 1; }
   .stack.span-4 { grid-template-columns: 1fr; }
-  .how-grid, .patch-boards { grid-template-columns: 1fr; }
+  .how-grid, .patch-boards, .meta-fields { grid-template-columns: 1fr; }
   .cmp-row { grid-template-columns: 80px 1fr 64px; }
   .cmp-row .delta { display: none; }
   .thoughts li { grid-template-columns: 72px 1fr; }

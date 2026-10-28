@@ -47,6 +47,10 @@ export default function Editor({ level, onChange, solvable }) {
 
   return (
     <div className="editor">
+      <div className="meta-fields">
+        <label>Level name<input value={level.name} maxLength={40} onChange={(e) => save({ ...level, name: e.target.value })} /></label>
+        <label>Genre, for the Tavily search<input value={level.genre || ''} maxLength={40} placeholder="grid puzzle" onChange={(e) => save({ ...level, genre: e.target.value })} /></label>
+      </div>
       <div className="palette" role="radiogroup" aria-label="Tile to paint">
         {PAINTS.map(([t, label]) => (
           <button key={t} role="radio" aria-checked={paint === t} className={paint === t ? 'chip on' : 'chip'} onClick={() => setPaint(t)}>{label}</button>
@@ -57,9 +61,10 @@ export default function Editor({ level, onChange, solvable }) {
         <span className={solvable.solvable ? 'ok' : 'bad'}>{solvable.solvable ? `Solvable in ${solvable.moves} moves` : solvable.exhausted ? 'Too complex to check: try fewer crates' : 'Not solvable yet: the solver cannot reach the exit'}</span>
         <span className="sizer">
           <button className="btn small" onClick={() => resize(-1, 0)} aria-label="Narrower">−</button>
-          <span className="num">{level.grid[0].length} × {level.grid.length}</span>
+          <span className="num">{level.grid[0].length} wide</span>
           <button className="btn small" onClick={() => resize(1, 0)} aria-label="Wider">+</button>
           <button className="btn small" onClick={() => resize(0, -1)} aria-label="Shorter">−</button>
+          <span className="num">{level.grid.length} tall</span>
           <button className="btn small" onClick={() => resize(0, 1)} aria-label="Taller">+</button>
         </span>
         <button className="btn small" onClick={() => setShowJson((s) => !s)}>{showJson ? 'Hide JSON' : 'Edit as JSON'}</button>

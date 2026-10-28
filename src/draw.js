@@ -41,6 +41,12 @@ export function drawBoard(ctx, { lv, cell, turn = 0, keyTaken = false, crates, g
       }
     }
   }
+  {
+    // Start tile: a ring the ghosts set off from.
+    const [x, y] = lv.start;
+    ctx.strokeStyle = '#6b6b72'; ctx.lineWidth = Math.max(1.5, cell * 0.06);
+    ctx.beginPath(); ctx.arc(x * cell + cell / 2, y * cell + cell / 2, cell * 0.3, 0, Math.PI * 2); ctx.stroke();
+  }
   if (lv.keyAt && !keyTaken) {
     const [x, y] = lv.keyAt, px = x * cell, py = y * cell;
     ctx.strokeStyle = C.key; ctx.lineWidth = Math.max(2, cell * 0.08);
