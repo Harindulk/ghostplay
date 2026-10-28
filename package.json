@@ -1,0 +1,26 @@
+{
+  "name": "ghostplay",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "api": "node --env-file-if-exists=.env server/dev.js",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test lib/",
+    "smoke": "node --env-file-if-exists=.env scripts/smoke.js",
+    "showcase": "node --env-file-if-exists=.env scripts/record-showcase.js"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
+  }
+}

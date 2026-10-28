@@ -1,0 +1,12 @@
+CLAUDE.md
+notes/
+research/
+.claude/
+.taste-skill/
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+.vercel/
+.DS_Store
