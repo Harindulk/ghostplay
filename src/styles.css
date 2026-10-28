@@ -189,6 +189,8 @@ h3 { margin: 0; font-size: 14px; font-weight: 600; }
   .thoughts li { grid-template-columns: 72px 1fr; }
   .thoughts li .num { display: none; }
   .seg { gap: 12px; }
+  .card-head { flex-wrap: wrap; row-gap: 8px; }
+  .card-head .seg + .seg { margin-left: 0; }
   .legend { margin-left: 0; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
