@@ -9,7 +9,7 @@ export function Players({ summary, live, models }) {
   const rows = Object.entries(PERSONAS).map(([id, p]) => {
     if (live) {
       const gs = Object.values(live).filter((g) => g.personaId === id);
-      return { id, p, cleared: gs.filter((g) => g.outcome === 'won').length, runs: gs.length, died: gs.filter((g) => g.outcome === 'died').length, stuck: gs.filter((g) => g.outcome === 'stuck').length, steps: null, playing: gs.filter((g) => g.outcome === 'playing').length };
+      return { id, p, cleared: gs.filter((g) => g.outcome === 'won').length, runs: gs.length, died: gs.filter((g) => g.outcome === 'died').length, stuck: gs.filter((g) => g.outcome === 'stuck' || g.outcome === 'gave_up').length, steps: null, playing: gs.filter((g) => g.outcome === 'playing').length };
     }
     const s = summary?.personas[id];
     return { id, p, cleared: s?.won, runs: s?.runs, died: s?.died, stuck: s ? s.stuck + s.gave_up : null, steps: s?.medianSteps };

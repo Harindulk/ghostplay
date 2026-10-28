@@ -116,7 +116,7 @@ export default function App() {
   const addCall = (c) => setCalls((cs) => [...cs, c]);
 
   async function start() {
-    setError(null); setReview(null); setRetest(null); setCalls([]); setLive({}); setHeatKind('ghosts'); setView('before'); setPhase('playing'); setPlaying(false);
+    setEditing(false); setError(null); setReview(null); setRetest(null); setCalls([]); setLive({}); setHeatKind('ghosts'); setView('before'); setPhase('playing'); setPlaying(false);
     try {
       const out = await playLive(level, { mock: api?.mock, onCall: addCall, onGhost: (g) => setLive((m) => ({ ...m, [g.id]: g })) });
       setRun({ source: api?.mock ? 'mock' : 'live', ...out });
@@ -224,7 +224,7 @@ export default function App() {
               )}
             </div>
             {editing ? (
-              <Editor level={custom} onChange={(l) => { setCustom(l); setRun(null); setReview(null); setRetest(null); }} solvable={solvable} />
+              <Editor level={custom} onChange={(l) => { setCustom(l); setRun(null); setReview(null); setRetest(null); setCalls([]); setPhase('idle'); setTurn(0); setView('before'); }} solvable={solvable} />
             ) : lv ? (
               <>
                 <Board lv={boardLv} turn={turn} ghosts={ghosts} heat={heatKind !== 'ghosts' ? shown?.summary?.heat : null} heatKind={heatKind !== 'ghosts' ? heatKind : null} highlight={highlight} showSpikes={phase !== 'playing' && phase !== 'retesting'} canvasRef={boardCanvas} label={`${level.name}: ${finding(run?.summary) || 'not played yet'}`} />
