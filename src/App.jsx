@@ -227,7 +227,7 @@ export default function App() {
               <Editor level={custom} onChange={(l) => { setCustom(l); setRun(null); setReview(null); setRetest(null); setCalls([]); setPhase('idle'); setTurn(0); setView('before'); }} solvable={solvable} />
             ) : lv ? (
               <>
-                <Board lv={boardLv} turn={turn} ghosts={ghosts} heat={heatKind !== 'ghosts' ? shown?.summary?.heat : null} heatKind={heatKind !== 'ghosts' ? heatKind : null} highlight={highlight} showSpikes={phase !== 'playing' && phase !== 'retesting'} canvasRef={boardCanvas} label={`${level.name}: ${finding(run?.summary) || 'not played yet'}`} />
+                <Board lv={boardLv} maxHeight={580} turn={turn} ghosts={ghosts} heat={heatKind !== 'ghosts' ? shown?.summary?.heat : null} heatKind={heatKind !== 'ghosts' ? heatKind : null} highlight={highlight} showSpikes={phase !== 'playing' && phase !== 'retesting'} canvasRef={boardCanvas} label={`${level.name}: ${finding(run?.summary) || 'not played yet'}`} />
                 <div className="board-foot">
                   {results && heatKind === 'ghosts' && phase !== 'playing' && phase !== 'retesting' ? (
                     <>

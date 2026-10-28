@@ -89,6 +89,8 @@ h3 { margin: 0; font-size: 14px; font-weight: 600; }
 .seg-btn:disabled { opacity: .4; cursor: default; }
 
 .board-wrap { width: 100%; min-width: 0; display: flex; justify-content: center; overflow: hidden; }
+.board-card { display: flex; flex-direction: column; }
+.board-card > .board-wrap { flex: 1; align-items: center; }
 .board-wrap canvas { display: block; image-rendering: pixelated; border-radius: 4px; }
 .board-wrap canvas.paintable { cursor: crosshair; touch-action: none; }
 .board-foot { display: flex; align-items: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
