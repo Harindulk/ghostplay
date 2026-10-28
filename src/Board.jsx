@@ -3,7 +3,7 @@ import { drawBoard, ghostOffset } from './draw.js';
 
 // Fits the level into its box, redraws on every change, and reports clicks as cells
 // (the level editor paints with them).
-export default function Board({ lv, turn, ghosts, heat, heatKind, highlight, showSpikes, onCell, label, canvasRef }) {
+export default function Board({ lv, turn, ghosts, heat, heatKind, highlight, showSpikes, onCell, label, canvasRef, maxHeight = 520 }) {
   const wrap = useRef(null);
   const own = useRef(null);
   const ref = canvasRef || own;
@@ -12,12 +12,12 @@ export default function Board({ lv, turn, ghosts, heat, heatKind, highlight, sho
 
   useEffect(() => {
     const el = wrap.current;
-    const fit = () => setCell(Math.max(18, Math.floor(Math.min(el.clientWidth / lv.w, 520 / lv.h))));
+    const fit = () => setCell(Math.max(12, Math.floor(Math.min(el.clientWidth / lv.w, maxHeight / lv.h))));
     fit();
     const ro = new ResizeObserver(fit);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [lv.w, lv.h]);
+  }, [lv.w, lv.h, maxHeight]);
 
   useEffect(() => {
     const c = ref.current;

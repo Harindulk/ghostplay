@@ -1,7 +1,7 @@
 // POST /api/report: Nemotron Ultra turns the swarm's evidence into a design report and a
 // solver-checked level patch.
 import { critique } from '../lib/critic.js';
-import { resolveModels } from '../lib/nebius.js';
+import { resolveModels, hasKey } from '../lib/nebius.js';
 import { checkLevel, cleanLevel, limited } from '../lib/guard.js';
 
 export async function POST(request) {
@@ -9,7 +9,7 @@ export async function POST(request) {
   const bad = checkLevel(body?.level);
   if (bad) return Response.json({ error: bad }, { status: 400 });
   if (!body.evidence || JSON.stringify(body.evidence).length > 20000) return Response.json({ error: 'Missing or oversized playtest evidence.' }, { status: 400 });
-  const why = limited(request, 'report', Number(process.env.REPORTS_PER_HOUR || 6));
+  const why = hasKey() && limited(request, 'report', Number(process.env.REPORTS_PER_HOUR || 6));
   if (why) return Response.json({ error: why }, { status: 429 });
   try {
     const models = await resolveModels();

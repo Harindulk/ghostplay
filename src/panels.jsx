@@ -86,7 +86,7 @@ export function Report({ phase, review, canWrite, onWrite, onRetest, canRetest, 
   const changed = (review?.report?.patch || []).map((p) => [p.x, p.y]);
   if (!review) {
     return (
-      <section className="report">
+      <section className="report" id="report">
         <div className="section-head">
           <h2>Design report</h2>
           <button className="btn primary" onClick={onWrite} disabled={!canWrite}>{phase === 'reviewing' ? 'Writing the report…' : 'Write the report'}</button>
@@ -99,7 +99,7 @@ export function Report({ phase, review, canWrite, onWrite, onRetest, canRetest, 
   }
   const r = review.report;
   return (
-    <section className="report">
+    <section className="report" id="report">
       <div className="section-head">
         <h2>Design report</h2>
         <span className="num muted">Difficulty {r.difficulty}/10</span>
@@ -107,7 +107,7 @@ export function Report({ phase, review, canWrite, onWrite, onRetest, canRetest, 
       <p className="verdict">{r.verdict}</p>
       <div className="grid">
         <div className="card span-8">
-          <div className="card-head"><h3>Issues</h3><span className="muted">Point at an issue to see its tiles on the board</span></div>
+          <div className="card-head"><h3>Issues</h3><span className="muted">Point at an issue to light its tiles on the board below</span></div>
           <ul className="issues">
             {r.issues.map((i, k) => (
               <li key={k} tabIndex={0} onMouseEnter={() => onHover(i.cells)} onMouseLeave={() => onHover([])} onFocus={() => onHover(i.cells)} onBlur={() => onHover([])}>
@@ -126,11 +126,11 @@ export function Report({ phase, review, canWrite, onWrite, onRetest, canRetest, 
             {review.patchError && <p className="error">The solver rejected the patch: {review.patchError}</p>}
             {plv && lv && (
               <div className="patch-boards">
-                <figure><Board lv={lv} turn={1} highlight={highlight.length ? highlight : changed} label="Level before the patch" /><figcaption>Before</figcaption></figure>
-                <figure><Board lv={plv} turn={1} highlight={changed} label="Level after the patch" /><figcaption>After · solver finishes it in <span className="num">{review.solution?.moves}</span> moves</figcaption></figure>
+                <figure><Board lv={lv} turn={1} highlight={highlight.length ? highlight : changed} maxHeight={300} label="Level before the patch" /><figcaption>Before</figcaption></figure>
+                <figure><Board lv={plv} turn={1} highlight={changed} maxHeight={300} label="Level after the patch" /><figcaption>After · solver finishes it in <span className="num">{review.solution?.moves}</span> moves</figcaption></figure>
               </div>
             )}
-            {plv && <button className="btn primary" onClick={onRetest} disabled={!canRetest}>{phase === 'retesting' ? 'Re-testing with the same 9 players…' : 'Apply patch and re-test'}</button>}
+            {plv && phase !== 'done' && <button className="btn primary" onClick={onRetest} disabled={!canRetest}>{phase === 'retesting' ? 'Re-testing with the same 9 players…' : 'Apply patch and re-test'}</button>}
           </div>
         </div>
         <div className="stack span-4">
@@ -166,8 +166,9 @@ const tileName = (t) => ({ '#': 'wall', '.': 'floor', '^': 'spike', k: 'key', D:
 export function Compare({ before, after, beforeCalls, afterCalls }) {
   const cost = (rs) => rs.reduce((t, g) => t + g.calls.reduce((s, c) => s + (c.cost || 0), 0), 0);
   return (
-    <section className="report">
+    <section className="report" id="compare">
       <div className="section-head"><h2>Before and after the patch</h2><span className="num muted">{usd(cost(beforeCalls))} + {usd(cost(afterCalls))} in playtest calls</span></div>
+      <p className="verdict">{compareLine(before, after)}</p>
       <div className="card compare">
         {Object.entries(PERSONAS).map(([id, p]) => {
           const b = before.personas[id], a = after.personas[id];
@@ -180,7 +181,7 @@ export function Compare({ before, after, beforeCalls, afterCalls }) {
                 <div className="bar"><span style={{ width: pct(a.completion), background: p.color }} /></div>
               </div>
               <span className="num">{b.won}/{b.runs} → {a.won}/{a.runs}</span>
-              <span className="num delta">{d > 0 ? '+' : ''}{d} pts</span>
+              <span className={`num delta ${d > 0 ? 'up' : d < 0 ? 'down' : ''}`}>{d > 0 ? '+' : ''}{d} pts</span>
             </div>
           );
         })}
@@ -188,4 +189,14 @@ export function Compare({ before, after, beforeCalls, afterCalls }) {
       </div>
     </section>
   );
+}
+
+// One sentence on what the fix changed, from the same numbers the bars show.
+function compareLine(before, after) {
+  const rows = Object.entries(PERSONAS).map(([id, p]) => ({ p, b: before.personas[id], a: after.personas[id] }));
+  const best = rows.sort((x, y) => (y.a.completion - y.b.completion) - (x.a.completion - x.b.completion))[0];
+  const total = (s) => Object.values(s.personas).reduce((n, x) => n + x.won, 0);
+  const runs = Object.values(before.personas).reduce((n, x) => n + x.runs, 0);
+  const lead = best.a.won === best.b.won ? 'No player type did better after the patch.' : `${best.p.label} players cleared ${best.b.won} of ${best.b.runs} before the patch and ${best.a.won} of ${best.a.runs} after it.`;
+  return `${lead} Overall, ${total(before)} of ${runs} reached the exit before and ${total(after)} of ${runs} after.`;
 }

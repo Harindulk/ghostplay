@@ -40,8 +40,9 @@ export const getModels = () => fetch('/api/models').then((r) => r.json()).catch(
 // Plays the swarm live. onCall(call) fires for every model call, onGhost(ghost) on every move.
 export async function playLive(level, { onCall, onGhost, mock = false }) {
   const pace = mock ? null : pacer(Number(import.meta.env.VITE_RPM || 60));
+  const runId = crypto.randomUUID();
   const decide = async ({ personaId, seed, state, history }) => {
-    const d = await postRetry('step', { personaId, seed, level, state, history }, pace);
+    const d = await postRetry('step', { runId, personaId, seed, level, state, history }, pace);
     onCall({ at: Date.now(), role: PERSONAS[personaId].label, ...d });
     return d;
   };

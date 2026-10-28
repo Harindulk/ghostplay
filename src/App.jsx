@@ -44,13 +44,14 @@ export default function App() {
   const [turn, setTurn] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [highlight, setHighlight] = useState([]);
+  const [view, setView] = useState('before'); // which run the board replays once a re-test exists
   const boardCanvas = useRef(null);
 
   useEffect(() => { getModels().then(setApi); }, []);
 
   // Load the recorded showcase run for a shipped level, if there is one.
   useEffect(() => {
-    setRun(null); setReview(null); setRetest(null); setCalls([]); setLive({}); setError(null); setPhase('idle'); setTurn(0); setHeatKind('ghosts');
+    setRun(null); setReview(null); setRetest(null); setCalls([]); setLive({}); setError(null); setPhase('idle'); setTurn(0); setHeatKind('ghosts'); setView('before');
     if (levelId === 'custom') return;
     let cancelled = false;
     fetch(`/showcase/${levelId}.json`).then((r) => (r.ok ? r.json() : null)).then((s) => {
@@ -64,7 +65,10 @@ export default function App() {
     return () => { cancelled = true; };
   }, [levelId]);
 
-  const results = run?.results;
+  const shown = view === 'after' && retest ? retest : run;
+  const results = shown?.results;
+  const plv = useMemo(() => (review_?.patched ? parseLevel(review_.patched) : null), [review_]);
+  const boardLv = view === 'after' && plv ? plv : lv;
   const maxTurn = results ? Math.max(...results.map((g) => g.path.length - 1)) : 0;
 
   // Replay clock.
@@ -97,7 +101,7 @@ export default function App() {
   const addCall = (c) => setCalls((cs) => [...cs, c]);
 
   async function start() {
-    setError(null); setReview(null); setRetest(null); setCalls([]); setLive({}); setHeatKind('ghosts'); setPhase('playing'); setPlaying(false);
+    setError(null); setReview(null); setRetest(null); setCalls([]); setLive({}); setHeatKind('ghosts'); setView('before'); setPhase('playing'); setPlaying(false);
     try {
       const out = await playLive(level, { mock: api?.mock, onCall: addCall, onGhost: (g) => setLive((m) => ({ ...m, [g.id]: g })) });
       setRun({ source: api?.mock ? 'mock' : 'live', ...out });
@@ -117,7 +121,7 @@ export default function App() {
     setError(null); setLive({}); setPhase('retesting');
     try {
       const out = await playLive(review_.patched, { mock: api?.mock, onCall: addCall, onGhost: (g) => setLive((m) => ({ ...m, [g.id]: g })) });
-      setRetest(out); setPhase('done');
+      setRetest(out); setPhase('done'); setView('after'); setHeatKind('ghosts'); setTurn(0); setPlaying(true);
     } catch (e) { setError(e.message); setPhase('reviewed'); }
   }
 
@@ -125,6 +129,15 @@ export default function App() {
   const busy = ['playing', 'reviewing', 'retesting'].includes(phase);
   const liveOk = api?.live || api?.mock;
   const doneMoves = Object.values(live).reduce((n, g) => n + g.moves.length, 0);
+  const goReport = () => document.getElementById('report')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // The title row's button is always the next step of the loop.
+  const next = phase === 'playing' ? { label: `Playing… ${doneMoves} moves`, disabled: true }
+    : phase === 'retesting' ? { label: 'Re-testing the patched level…', disabled: true }
+    : phase === 'reviewing' ? { label: 'Writing the report…', disabled: true }
+    : phase === 'played' ? { label: 'Write the design report', run: () => { goReport(); writeReport(); }, disabled: !liveOk }
+    : phase === 'reviewed' && review_?.patched ? { label: 'Apply patch and re-test', run: () => { goReport(); applyAndRetest(); }, disabled: !liveOk }
+    : phase === 'done' ? { label: 'See before and after', run: () => document.getElementById('compare')?.scrollIntoView({ behavior: 'smooth' }) }
+    : { label: 'Run 9 playtesters', run: start, disabled: busy || !liveOk || !solvable.solvable };
   const sourceLine = run?.source === 'showcase'
     ? `Recorded run from ${new Date(run.recordedAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}, real Nemotron calls on Nebius Token Factory`
     : run?.source === 'mock' ? 'Mock players: this server has no Token Factory key, so nothing here came from a model'
@@ -160,9 +173,8 @@ export default function App() {
           <div className="title-actions">
             {import.meta.env.DEV && run && run.source === 'live' && <button className="btn" onClick={() => saveShowcase(levelId, { run, calls, review_, retest })}>Save as showcase</button>}
             {levelId === 'custom' && <button className="btn" onClick={() => setEditing((e) => !e)} disabled={busy}>{editing ? 'Done editing' : 'Edit level'}</button>}
-            <button className="btn primary" onClick={start} disabled={busy || !liveOk || !solvable.solvable} title={!liveOk ? 'Live play is off on this server' : undefined}>
-              {phase === 'playing' ? `Playing… ${doneMoves} moves` : results ? 'Play again live' : 'Run 9 playtesters'}
-            </button>
+            {results && phase !== 'playing' && <button className="btn" onClick={start} disabled={busy || !liveOk}>Play again</button>}
+            <button className="btn primary" onClick={next.run} disabled={next.disabled} title={!liveOk ? 'Live play is off on this server' : undefined}>{next.label}</button>
           </div>
         </header>
 
@@ -179,7 +191,14 @@ export default function App() {
         <section className="grid">
           <div className="card board-card span-8">
             <div className="card-head">
-              <h2>{editing ? 'Paint your level' : 'Playtest'}</h2>
+              <h2>{editing ? 'Paint your level' : view === 'after' && retest ? 'Re-test on the patched level' : 'Playtest'}</h2>
+              {retest && !editing && (
+                <div className="seg" role="tablist" aria-label="Which run">
+                  {[['before', 'Before fix'], ['after', 'After fix']].map(([k, label]) => (
+                    <button key={k} role="tab" aria-selected={view === k} className={view === k ? 'seg-btn on' : 'seg-btn'} onClick={() => { setView(k); setTurn(0); setPlaying(true); }} disabled={busy}>{label}</button>
+                  ))}
+                </div>
+              )}
               {!editing && (
                 <div className="seg" role="tablist" aria-label="Board view">
                   {HEAT.map(([k, label]) => (
@@ -192,7 +211,7 @@ export default function App() {
               <Editor level={custom} onChange={(l) => { setCustom(l); setRun(null); setReview(null); setRetest(null); }} solvable={solvable} />
             ) : lv ? (
               <>
-                <Board lv={lv} turn={turn} ghosts={ghosts} heat={heatKind !== 'ghosts' ? run?.summary?.heat : null} heatKind={heatKind !== 'ghosts' ? heatKind : null} highlight={highlight} showSpikes={phase !== 'playing' && phase !== 'retesting'} canvasRef={boardCanvas} label={`${level.name}: ${finding(run?.summary) || 'not played yet'}`} />
+                <Board lv={boardLv} turn={turn} ghosts={ghosts} heat={heatKind !== 'ghosts' ? shown?.summary?.heat : null} heatKind={heatKind !== 'ghosts' ? heatKind : null} highlight={highlight} showSpikes={phase !== 'playing' && phase !== 'retesting'} canvasRef={boardCanvas} label={`${level.name}: ${finding(run?.summary) || 'not played yet'}`} />
                 <div className="board-foot">
                   {results && heatKind === 'ghosts' && phase !== 'playing' && phase !== 'retesting' ? (
                     <>
@@ -207,12 +226,13 @@ export default function App() {
                     {Object.values(PERSONAS).map((p) => <span key={p.label}><i style={{ background: p.color }} />{p.label}</span>)}
                   </span>
                 </div>
+                <Thoughts ghosts={phase === 'playing' || phase === 'retesting' ? Object.values(live) : results} turn={phase === 'playing' || phase === 'retesting' ? Infinity : turn} />
               </>
             ) : <p className="empty">This level has a problem: it needs one start and one exit.</p>}
           </div>
 
           <div className="stack span-4">
-            <Players summary={run?.summary} live={phase === 'playing' ? live : null} models={api?.models} />
+            <Players summary={shown?.summary} live={phase === 'playing' ? live : null} models={api?.models} />
             <Calls calls={calls} />
           </div>
         </section>
@@ -259,4 +279,22 @@ function saveShowcase(levelId, { run, calls, review_, retest }) {
   a.download = `${levelId}.json`;
   a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }));
   a.click();
+}
+
+// What one ghost of each type was thinking at this point of the replay.
+function Thoughts({ ghosts, turn }) {
+  if (!ghosts?.length) return null;
+  const rows = Object.entries(PERSONAS).map(([id, p]) => {
+    const g = ghosts.find((x) => x.personaId === id && x.thoughts?.some((t) => t.text));
+    const t = g?.thoughts.filter((x) => x.turn <= turn && x.text).at(-1);
+    return t ? { id, p, t } : null;
+  }).filter(Boolean);
+  if (!rows.length) return null;
+  return (
+    <ul className="thoughts" aria-label="What the playtesters were thinking">
+      {rows.map(({ id, p, t }) => (
+        <li key={id}><span className="who"><i style={{ background: p.color }} />{p.label}</span><span className="num muted">turn {t.turn}</span><q>{t.text}</q></li>
+      ))}
+    </ul>
+  );
 }

@@ -78,7 +78,7 @@ npm test               # engine, solver and swarm tests
 
 Without a key the API answers with clearly labelled mock players, so you can work on the UI offline.
 
-**Deploy:** import the repo on Vercel and set the variables from `.env.example`. `LIVE_MODE_ENABLED`, `DAILY_CALL_CAP`, `STEP_CALLS_PER_HOUR` and `REPORTS_PER_HOUR` cap what the public demo can spend.
+**Deploy:** import the repo on Vercel and set the variables from `.env.example`. `LIVE_MODE_ENABLED`, `DAILY_LIVE_CAP`, `RUNS_PER_HOUR`, `CALLS_PER_RUN` and `REPORTS_PER_HOUR` cap what the public demo can spend.
 
 ## Level format
 

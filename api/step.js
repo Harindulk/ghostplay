@@ -2,7 +2,8 @@
 import { decide } from '../lib/player.js';
 import { resolveModels } from '../lib/nebius.js';
 import { PERSONAS } from '../lib/personas.js';
-import { checkLevel, cleanLevel, limited } from '../lib/guard.js';
+import { checkLevel, cleanLevel, limitedRun } from '../lib/guard.js';
+import { hasKey } from '../lib/nebius.js';
 
 export async function POST(request) {
   const body = await request.json().catch(() => null);
@@ -12,7 +13,7 @@ export async function POST(request) {
   if (bad) return Response.json({ error: bad }, { status: 400 });
   const s = body.state || {};
   if (![s.x, s.y, s.turn].every(Number.isInteger) || !Array.isArray(s.crates) || s.crates.length > 20) return Response.json({ error: 'Bad state.' }, { status: 400 });
-  const why = limited(request, 'step', Number(process.env.STEP_CALLS_PER_HOUR || 400));
+  const why = hasKey() ? limitedRun(request, body.runId) : null; // mock players cost nothing
   if (why) return Response.json({ error: why }, { status: 429 });
   try {
     const models = await resolveModels();
