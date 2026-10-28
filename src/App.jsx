@@ -170,7 +170,7 @@ export default function App() {
       <main className="canvas" id="lab">
         <header className="title-row">
           <div className="title-text">
-            <p className="product">Ghostplay <span>AI playtesters on NVIDIA Nemotron</span></p>
+            <p className="product">Ghostplay <span>AI playtesters on NVIDIA Nemotron, served by Nebius Token Factory</span></p>
             <h1>{level?.name || 'Your level'}</h1>
             <p className="finding">{finding(run?.summary) || 'Nine AI playtesters, three for each Nemotron skill level, play this level and show you where players die.'}</p>
           </div>
@@ -238,7 +238,7 @@ export default function App() {
 
           <div className="stack span-4">
             <Players summary={shown?.summary} live={phase === 'playing' ? live : null} models={api?.models} />
-            <Calls calls={calls} />
+            <Calls calls={calls} models={api?.models} />
           </div>
         </section>
 
@@ -258,7 +258,7 @@ export default function App() {
           </div>
         </section>
         <footer className="foot">
-          <span>Ghostplay is open source under the MIT licence. Built by Harindu at StarFun Games for the Nebius x NVIDIA Global AI Hackathon.</span>
+          <span>Ghostplay runs NVIDIA Nemotron models on Nebius Token Factory, with Tavily for the genre lens. Open source under the MIT licence, built by Harindu at StarFun Games for the Nebius x NVIDIA Global AI Hackathon.</span>
           <a href="https://github.com/Harindulk/ghostplay">github.com/Harindulk/ghostplay</a>
         </footer>
       </main>

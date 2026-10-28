@@ -40,7 +40,15 @@ export function Players({ summary, live, models }) {
 }
 
 // Which model did what, what it cost and how fast it answered.
-export function Calls({ calls }) {
+const ROUTES = [
+  ['Casual players', 'casual', 'many fast calls'],
+  ['Core players', 'core', 'the everyday player'],
+  ['Expert players', 'expert', 'reasoning budget 384'],
+  ['First-glance check', 'vision', 'reads a picture of the level'],
+  ['Design report and patch', 'critic', 'reasoning budget 2,048'],
+];
+
+export function Calls({ calls, models }) {
   const byModel = useMemo(() => {
     const m = {};
     for (const c of calls) {
@@ -72,7 +80,19 @@ export function Calls({ calls }) {
             ))}
           </tbody>
         </table>
-      ) : <p className="empty">No calls yet. Every Token Factory call shows up here with its model, speed and cost.</p>}
+      ) : (
+        <>
+          <table className="tbl">
+            <thead><tr><th>Job</th><th>Model on Token Factory</th></tr></thead>
+            <tbody>
+              {ROUTES.map(([job, role, why]) => (
+                <tr key={job}><td><span className="who">{job}</span><span className="model">{why}</span></td><td><span className="model strong" title={models?.[role]}>{short(models?.[role])}</span></td></tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="note">Once a run starts, every call shows up here with its model, speed, tokens and cost.</p>
+        </>
+      )}
       {last && <p className="note num">Last: {last.role} on {short(last.model)}, {ms(last.latencyMs)}{left ? ` · ${left} requests left this minute` : ''}</p>}
     </div>
   );
