@@ -254,7 +254,7 @@ export default function App() {
           <div className="how-grid">
             <p>Each playtester is a ghost driven by an NVIDIA Nemotron model on Nebius Token Factory. It sees the board as text with coordinates and spike timing, and commits to its next one to four moves, which is how real players act between glances. Model size and reasoning budget set the skill: {Object.values(PERSONAS).map((p) => `${p.label} is ${short(api?.models?.[p.role]) || p.role}`).join(', ')}.</p>
             <p>After the swarm plays, Nemotron Super VL looks at a picture of the level like a first-time player, Tavily looks up what players and designers say about the problems the swarm hit, and Nemotron Ultra writes the report and a patch of up to six tiles. A breadth-first solver must prove the patched level can still be finished before you can apply it, and the same nine ghosts replay it.</p>
-            <p>Limits, honestly: these are language models playing from a text view, so they approximate players rather than replace them. Ghostplay measures difficulty, clarity and softlocks, not fun, and it only reads its own grid format today.</p>
+            <p>Limits: these are language models playing from a text view, so they approximate players and can't stand in for a real playtest. Ghostplay measures difficulty, clarity and softlocks. It can't tell you whether a level is fun, and it only reads its own grid format today.</p>
           </div>
         </section>
         <footer className="foot">

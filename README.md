@@ -14,18 +14,18 @@ Ghostplay gives you a first round of strangers in about a minute, for cents, bef
 
 ## What it does
 
-1. **The swarm plays.** Nine ghosts play the level: three casual players, three core players and three experts. Each ghost sees the board as text (coordinates, spike timing, legal moves) and commits to its next one to four moves, the way a real player acts between glances.
-2. **You see where it breaks.** Heatmaps of deaths, visits and wall bumps; completion by player type; a replay you can scrub turn by turn.
-3. **A first-glance check.** A vision model looks at a picture of the level for "two seconds", like a new player, and says what is unclear.
-4. **A genre lens.** Tavily searches and reads what players and designers say about the problems the swarm actually hit.
-5. **A design report with a fix.** Nemotron Ultra reads every run and writes the issues, with evidence and tile coordinates, plus a patch of up to six tiles.
-6. **The fix is proved, not suggested.** A breadth-first solver must show the patched level can still be finished before you can apply it. The same nine ghosts then replay it, and you get completion before and after.
+1. Nine ghosts play the level: three casual players, three core players and three experts. Each ghost sees the board as text (coordinates, spike timing, legal moves) and commits to its next one to four moves, the way a real player acts between glances.
+2. You see where it breaks: heatmaps of deaths, visits and wall bumps, completion by player type, and a replay you can scrub turn by turn.
+3. A vision model looks at a picture of the level for "two seconds", like a new player, and says what is unclear.
+4. Tavily searches and reads what players and designers say about the problems the swarm actually hit.
+5. Nemotron Ultra reads every run and writes a design report: the issues, with evidence and tile coordinates, plus a patch of up to six tiles.
+6. A breadth-first solver has to show the patched level can still be finished before you can apply the patch. The same nine ghosts then replay it, and you get completion before and after.
 
 You can paint your own level in the editor and run the whole loop on it.
 
 ## How it uses NVIDIA Nemotron and Nebius Token Factory
 
-Every model call goes to the Token Factory OpenAI-compatible endpoint (`https://api.tokenfactory.nebius.com/v1`) in [`lib/nebius.js`](lib/nebius.js). Model size and reasoning budget are the product's skill dial, not just a cost setting:
+Every model call goes to the Token Factory OpenAI-compatible endpoint (`https://api.tokenfactory.nebius.com/v1`) in [`lib/nebius.js`](lib/nebius.js). The size of the model and its reasoning budget decide how well each player plays:
 
 | Role | Model (first available) | Settings | Why |
 |---|---|---|---|
@@ -35,11 +35,11 @@ Every model call goes to the Token Factory OpenAI-compatible endpoint (`https://
 | First-glance check | `nvidia/Nemotron-3.5-Super-VL` | image input, JSON schema | It needs pixels |
 | Designer-critic | `nvidia/Nemotron-3-Ultra-550b-a55b` | thinking on, reasoning budget 2,048, JSON schema | One long, high-stakes call over all the evidence |
 
-- **Model discovery.** At startup the server reads `GET /v1/models` and picks the first preferred model per role that Token Factory serves today ([`lib/personas.js`](lib/personas.js)). Two Nemotron 3 serverless IDs retire on 9 Nov 2026, before judging, so nothing is hard-wired to them.
-- **Structured output.** Moves and reports use `response_format` JSON schema. If an endpoint rejects a field, the client drops it, retries once and remembers that, so the app degrades instead of failing.
-- **Reasoning budget.** Sent as `chat_template_kwargs` (`enable_thinking`, `reasoning_budget`).
-- **Rate limits.** Each player call commits to several moves, so a full run is about 80-120 calls instead of 400+, which fits the default 60 requests a minute. The UI shows the `x-ratelimit-*` headers Token Factory returns.
-- **Every call is visible.** The "Model calls" panel lists each model, how many calls it made, its average latency, tokens and cost.
+- At startup the server reads `GET /v1/models` and picks the first preferred model per role that Token Factory serves today ([`lib/personas.js`](lib/personas.js)). Two Nemotron 3 serverless IDs retire on 9 Nov 2026, before judging, so nothing is hard-wired to them.
+- Moves and reports use `response_format` JSON schema. If an endpoint rejects a field, the client drops it, retries once and remembers that, so the app degrades instead of failing.
+- The reasoning budget is sent as `chat_template_kwargs` (`enable_thinking`, `reasoning_budget`).
+- Each player call commits to several moves, so a full run is about 80-120 calls instead of 400+. The browser paces calls to Token Factory's default 60 requests a minute, slows down when the `x-ratelimit-remaining-requests` header runs low, and retries a 429 with backoff, so a run takes a minute or two and is never cut off halfway.
+- The "Model calls" panel lists each model, how many calls it made, its average latency, tokens and cost.
 
 Measured on a real run: _filled in after the first live run (calls, tokens, cost per full cycle)._
 
@@ -95,7 +95,7 @@ Without a key the API answers with clearly labelled mock players, so you can wor
 
 ## Limitations
 
-- These are language models playing from a text view. They approximate players; they don't replace them.
+- These are language models playing from a text view. They approximate players and can't stand in for a real playtest.
 - Ghostplay measures difficulty, clarity and softlocks, not fun.
 - It reads its own grid format only. Real engines (Unity tilemaps, Tiled maps) are on the roadmap.
 - The public demo's limits are kept in memory per server instance, so they are approximate.
