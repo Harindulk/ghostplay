@@ -46,7 +46,7 @@ export async function playLive(level, { onCall, onGhost, mock = false }) {
     onCall({ at: Date.now(), role: PERSONAS[personaId].label, ...d });
     return d;
   };
-  const results = await runSwarm({ level, ghosts: ghostsFor(), decide, onUpdate: (g) => onGhost({ ...g }), concurrency: 6 });
+  const results = await runSwarm({ level, ghosts: ghostsFor(), decide, onUpdate: (g) => onGhost({ ...g }), concurrency: 9 });
   return { results, summary: summarize(level, results) };
 }
 
