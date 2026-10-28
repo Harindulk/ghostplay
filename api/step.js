@@ -20,7 +20,7 @@ export async function POST(request) {
     if (!model) return Response.json({ error: `No ${persona.role} model is available on Token Factory right now.` }, { status: 503 });
     const state = { x: s.x, y: s.y, turn: s.turn, key: Boolean(s.key), crates: s.crates.map((c) => [c[0] | 0, c[1] | 0]), dead: false, won: false };
     const history = (Array.isArray(body.history) ? body.history : []).slice(-12).map(String);
-    return Response.json(await decide({ personaId: body.personaId, level: cleanLevel(body.level), state, history, model }));
+    return Response.json(await decide({ personaId: body.personaId, level: cleanLevel(body.level), state, history, model, seed: Number(body.seed) | 0 }));
   } catch (e) {
     return Response.json({ error: e.message }, { status: e.status === 429 ? 429 : 502 });
   }

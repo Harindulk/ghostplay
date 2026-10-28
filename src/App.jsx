@@ -16,12 +16,12 @@ const HEAT = [['ghosts', 'Ghosts'], ['deaths', 'Deaths'], ['visits', 'Visits'], 
 function finding(summary) {
   if (!summary) return null;
   const all = Object.values(summary.personas);
-  const runs = all.reduce((n, p) => n + p.runs, 0), died = all.reduce((n, p) => n + p.died, 0), stuck = all.reduce((n, p) => n + p.stuck, 0);
+  const runs = all.reduce((n, p) => n + p.runs, 0), died = all.reduce((n, p) => n + p.died, 0), stuck = all.reduce((n, p) => n + p.stuck + p.gave_up, 0); // same as the Stuck column
   const worst = Object.entries(summary.personas).sort((a, b) => a[1].completion - b[1].completion)[0];
   const hot = summary.deathCells[0];
   const parts = [`${runs - all.reduce((n, p) => n + p.won, 0)} of ${runs} playtesters failed`];
   if (died) parts.push(`${died} died${hot ? `, ${hot.deaths} on the tile at (${hot.x},${hot.y})` : ''}`);
-  if (stuck) parts.push(`${stuck} got stuck`);
+  if (stuck) parts.push(`${stuck} got stuck or ran out of moves`);
   return `${parts.join('; ')}. ${PERSONAS[worst[0]].label} players cleared ${worst[1].won} of ${worst[1].runs}.`;
 }
 
@@ -75,6 +75,14 @@ export default function App() {
     return () => clearTimeout(t);
   }, [playing, turn, maxTurn, results]);
 
+  // Before a run, tick the spike clock so the level's timing is visible.
+  const idle = !results && phase === 'idle' && !editing;
+  useEffect(() => {
+    if (!idle || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const t = setInterval(() => setTurn((x) => x + 1), 700);
+    return () => clearInterval(t);
+  }, [idle]);
+
   const ghosts = useMemo(() => {
     if (phase === 'playing' || phase === 'retesting') {
       return Object.values(live).map((g) => ({ personaId: g.personaId, at: g.path.at(-1), trail: g.path, outcome: g.outcome }));
@@ -91,7 +99,7 @@ export default function App() {
   async function start() {
     setError(null); setReview(null); setRetest(null); setCalls([]); setLive({}); setHeatKind('ghosts'); setPhase('playing'); setPlaying(false);
     try {
-      const out = await playLive(level, { onCall: addCall, onGhost: (g) => setLive((m) => ({ ...m, [g.id]: g })) });
+      const out = await playLive(level, { mock: api?.mock, onCall: addCall, onGhost: (g) => setLive((m) => ({ ...m, [g.id]: g })) });
       setRun({ source: api?.mock ? 'mock' : 'live', ...out });
       setPhase('played'); setTurn(0); setPlaying(true);
     } catch (e) { setError(e.message); setPhase(results ? 'played' : 'idle'); }
@@ -108,7 +116,7 @@ export default function App() {
   async function applyAndRetest() {
     setError(null); setLive({}); setPhase('retesting');
     try {
-      const out = await playLive(review_.patched, { onCall: addCall, onGhost: (g) => setLive((m) => ({ ...m, [g.id]: g })) });
+      const out = await playLive(review_.patched, { mock: api?.mock, onCall: addCall, onGhost: (g) => setLive((m) => ({ ...m, [g.id]: g })) });
       setRetest(out); setPhase('done');
     } catch (e) { setError(e.message); setPhase('reviewed'); }
   }
@@ -193,7 +201,7 @@ export default function App() {
                       <span className="num muted">Turn {turn} of {maxTurn}</span>
                     </>
                   ) : (
-                    <span className="muted">{phase === 'playing' || phase === 'retesting' ? 'Spikes are shown raised while ghosts play at their own pace; the replay shows exact timing.' : solvable.solvable ? `The solver finishes this level in ${solvable.moves} moves.` : 'This level cannot be finished yet.'}</span>
+                    <span className="muted">{phase === 'playing' || phase === 'retesting' ? 'Spikes are shown raised while ghosts play at their own pace; the replay shows exact timing.' : solvable.solvable ? `The solver finishes this level in ${solvable.moves} moves.${lv.map.some((r) => r.includes('^')) ? ` Spikes are up ${lv.spike.on} turns in every ${lv.spike.period}.` : ''}` : 'This level cannot be finished yet.'}</span>
                   )}
                   <span className="legend">
                     {Object.values(PERSONAS).map((p) => <span key={p.label}><i style={{ background: p.color }} />{p.label}</span>)}

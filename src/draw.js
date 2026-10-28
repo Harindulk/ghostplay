@@ -4,7 +4,7 @@ import { spikeUp } from '../lib/engine.js';
 import { PERSONAS } from '../lib/personas.js';
 
 const C = {
-  floor: '#1a191e', floorAlt: '#18171c', wall: '#3b3a42', wallFace: '#28272d',
+  floor: '#1a191e', floorAlt: '#18171c', wall: '#302f36', wallFace: '#24232a',
   exit: '#e8b04a', key: '#e8b04a', door: '#9a6a3c', doorOpen: '#4a3a2c',
   spike: '#e5566f', spikeDown: '#4a3a40', crate: '#8a6a45', crateLine: '#5e4930',
   death: '229,86,111', visit: '242,242,243', bump: '217,164,65', highlight: '#4a8ad6',

@@ -38,7 +38,7 @@ th.num, td.num { text-align: right; }
 .rail-link.active::after { content: ""; position: absolute; right: -1px; top: 12px; bottom: 12px; width: 1px; background: var(--accent); }
 .rail-bottom { margin-top: auto; }
 
-.canvas { padding: var(--pad); max-width: 1440px; width: 100%; }
+.canvas { padding: var(--pad); max-width: 1440px; width: 100%; min-width: 0; }
 .title-row { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--gap); }
 .product { margin: 0 0 6px; font-weight: 600; font-size: 14px; }
 .product span { color: var(--muted); font-weight: 400; margin-left: 6px; }
@@ -65,10 +65,13 @@ h1 { margin: 0; font-size: var(--fs-title); line-height: 32px; font-weight: 600;
 .error { margin: 12px 0 0; color: var(--negative); }
 
 /* Grid and cards */
-.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); margin-top: 20px; align-items: start; }
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); margin-top: 20px; align-items: stretch; }
+.grid > * { min-width: 0; }
 .span-8 { grid-column: span 8; }
 .span-4 { grid-column: span 4; }
-.stack { display: grid; gap: var(--gap); }
+.stack { display: grid; gap: var(--gap); grid-template-rows: auto 1fr; align-content: start; }
+.stack > .card { display: flex; flex-direction: column; }
+.stack > .card > .note:last-child { margin-top: auto; padding-top: 10px; }
 .card { background: var(--surface); border-radius: var(--radius-card); box-shadow: var(--shadow); padding: 18px 20px; }
 .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; min-height: 28px; }
 h2 { margin: 0; font-size: 16px; font-weight: 600; }
