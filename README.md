@@ -8,7 +8,7 @@ Nine AI playtesters play your game level, show you where players die and get stu
 
 ## The problem
 
-I make small mobile and web games at StarFun Games. The difficulty spike that ruins level 3 is always found by players after launch, in one-star reviews, never by me: I know the level too well to play it like a stranger. Getting strangers is hard for a solo developer. Google Play even makes new personal developer accounts run a closed test with at least 12 testers for 14 days before they can publish.
+I make small mobile and web games at StarFun Games. The difficulty spike that ruins level 3 is always found by players after launch, in one-star reviews, never by me: I know the level too well to play it like a stranger. Getting strangers is hard for a solo developer. Google Play even makes new personal developer accounts run a closed test with at least 12 testers for 14 days before they can publish ([Play Console Help](https://support.google.com/googleplay/android-developer/answer/14151465)).
 
 Ghostplay gives you a first round of strangers in about a minute, for cents, before you spend those testers on it.
 
