@@ -56,7 +56,7 @@ export default function App() {
     let cancelled = false;
     fetch(`/showcase/${levelId}.json`).then((r) => (r.ok ? r.json() : null)).then((s) => {
       if (cancelled || !s) return;
-      setRun({ source: 'showcase', results: s.results, summary: s.summary, recordedAt: s.recordedAt, models: s.models });
+      setRun({ source: s.mock ? 'mock' : 'showcase', results: s.results, summary: s.summary, recordedAt: s.recordedAt, models: s.models });
       setCalls(s.calls || []);
       if (s.review) { setReview(s.review); setPhase('reviewed'); } else setPhase('played');
       if (s.retest) { setRetest(s.retest); setPhase('done'); }
@@ -277,13 +277,12 @@ function cleanBoardImage(level) {
   return c.toDataURL('image/png');
 }
 
-// Dev only: download the finished live run so it can ship in public/showcase/ as a recorded run.
-function saveShowcase(levelId, { run, calls, review_, retest }) {
-  const data = { levelId, recordedAt: new Date().toISOString(), results: run.results, summary: run.summary, calls, review: review_, retest };
-  const a = document.createElement('a');
-  a.download = `${levelId}${run.source === 'mock' ? '.mock' : ''}.json`; // only real runs ship as <level>.json
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }));
-  a.click();
+// Dev only: write the finished run into public/showcase/ through the local API server, so it
+// ships as a recorded run. Mock runs are saved as <level>.mock.json and never load.
+async function saveShowcase(levelId, { run, calls, review_, retest }) {
+  const data = { levelId, mock: run.source === 'mock', recordedAt: new Date().toISOString(), results: run.results, summary: run.summary, calls, review: review_, retest };
+  const r = await fetch('/api/save-showcase', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  console.info(r.ok ? `Saved ${(await r.json()).file}` : `Save failed: ${r.status}`);
 }
 
 // What one ghost of each type was thinking at this point of the replay.
