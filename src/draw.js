@@ -97,6 +97,11 @@ export function drawBoard(ctx, { lv, cell, turn = 0, keyTaken = false, crates, g
     ctx.fillStyle = '#131217';
     ctx.fillRect(cx - r * 0.42, cy - r * 0.3, r * 0.22, r * 0.3); ctx.fillRect(cx + r * 0.2, cy - r * 0.3, r * 0.22, r * 0.3);
     ctx.globalAlpha = 1;
+    if (g.waiting) {
+      // Three dots over the head while its model call is in flight.
+      ctx.fillStyle = col;
+      for (let i = -1; i <= 1; i++) { ctx.beginPath(); ctx.arc(cx + i * r * 0.45, cy - r * 1.55, Math.max(1.5, r * 0.13), 0, Math.PI * 2); ctx.fill(); }
+    }
   }
   for (const [x, y] of highlight) {
     ctx.strokeStyle = C.highlight; ctx.lineWidth = 2;

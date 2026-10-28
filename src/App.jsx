@@ -89,7 +89,7 @@ export default function App() {
 
   const ghosts = useMemo(() => {
     if (phase === 'playing' || phase === 'retesting') {
-      return Object.values(live).map((g) => ({ personaId: g.personaId, at: g.path.at(-1), trail: g.path, outcome: g.outcome }));
+      return Object.values(live).map((g) => ({ personaId: g.personaId, at: g.path.at(-1), trail: g.path, outcome: g.outcome, waiting: g.waiting }));
     }
     if (!results && lv && !editing) {
       // Nobody has played yet: the nine players wait at the start.
@@ -172,10 +172,10 @@ export default function App() {
           <div className="title-text">
             <p className="product">Ghostplay <span>AI playtesters on NVIDIA Nemotron, served by Nebius Token Factory</span></p>
             <h1>{level?.name || 'Your level'}</h1>
-            <p className="finding">{finding(run?.summary) || 'Nine AI playtesters, three for each Nemotron skill level, play this level and show you where players die.'}</p>
+            <p className="finding" aria-live="polite">{finding(run?.summary) || 'Nine AI playtesters, three for each Nemotron skill level, play this level and show you where players die.'}</p>
           </div>
           <div className="title-actions">
-            {import.meta.env.DEV && run && run.source === 'live' && <button className="btn" onClick={() => saveShowcase(levelId, { run, calls, review_, retest })}>Save as showcase</button>}
+            {import.meta.env.DEV && run && run.source !== 'showcase' && phase !== 'playing' && <button className="btn" onClick={() => saveShowcase(levelId, { run, calls, review_, retest })}>Save as showcase</button>}
             {levelId === 'custom' && <button className="btn" onClick={() => setEditing((e) => !e)} disabled={busy}>{editing ? 'Done editing' : 'Edit level'}</button>}
             {results && phase !== 'playing' && <button className="btn" onClick={start} disabled={busy || !liveOk}>Play again</button>}
             <button className="btn primary" onClick={next.run} disabled={next.disabled} title={!liveOk ? 'Live play is off on this server' : undefined}>{next.label}</button>
@@ -281,7 +281,7 @@ function cleanBoardImage(level) {
 function saveShowcase(levelId, { run, calls, review_, retest }) {
   const data = { levelId, recordedAt: new Date().toISOString(), results: run.results, summary: run.summary, calls, review: review_, retest };
   const a = document.createElement('a');
-  a.download = `${levelId}.json`;
+  a.download = `${levelId}${run.source === 'mock' ? '.mock' : ''}.json`; // only real runs ship as <level>.json
   a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }));
   a.click();
 }
