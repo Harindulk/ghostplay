@@ -91,12 +91,16 @@ export default function App() {
     if (phase === 'playing' || phase === 'retesting') {
       return Object.values(live).map((g) => ({ personaId: g.personaId, at: g.path.at(-1), trail: g.path, outcome: g.outcome }));
     }
+    if (!results && lv && !editing) {
+      // Nobody has played yet: the nine players wait at the start.
+      return Object.keys(PERSONAS).flatMap((personaId) => [0, 1, 2].map(() => ({ personaId, at: lv.start, trail: [], outcome: 'playing' })));
+    }
     if (!results || heatKind !== 'ghosts') return [];
     return results.map((g) => {
       const i = Math.min(turn, g.path.length - 1);
       return { personaId: g.personaId, at: g.path[i], trail: g.path.slice(0, i + 1), outcome: turn >= g.path.length - 1 ? g.outcome : 'playing' };
     });
-  }, [phase, live, results, turn, heatKind]);
+  }, [phase, live, results, turn, heatKind, lv, editing]);
 
   const addCall = (c) => setCalls((cs) => [...cs, c]);
 
@@ -128,10 +132,10 @@ export default function App() {
   const solvable = useMemo(() => (lv ? solve(level) : { solvable: false }), [level, lv]);
   const busy = ['playing', 'reviewing', 'retesting'].includes(phase);
   const liveOk = api?.live || api?.mock;
-  const doneMoves = Object.values(live).reduce((n, g) => n + g.moves.length, 0);
+  const finished = Object.values(live).filter((g) => g.outcome !== 'playing').length;
   const goReport = () => document.getElementById('report')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   // The title row's button is always the next step of the loop.
-  const next = phase === 'playing' ? { label: `Playing… ${doneMoves} moves`, disabled: true }
+  const next = phase === 'playing' ? { label: `Playing… ${finished} of 9 finished`, disabled: true }
     : phase === 'retesting' ? { label: 'Re-testing the patched level…', disabled: true }
     : phase === 'reviewing' ? { label: 'Writing the report…', disabled: true }
     : phase === 'played' ? { label: 'Write the design report', run: () => { goReport(); writeReport(); }, disabled: !liveOk }
@@ -185,7 +189,8 @@ export default function App() {
         </div>
 
         {sourceLine && <p className={`source ${run.source}`}>{sourceLine}</p>}
-        {api && !api.live && !api.mock && <p className="source mock">Live play is switched off on this server. The recorded runs are real.</p>}
+        {api?.error && <p className="error" role="alert">Can't reach the Ghostplay API right now ({api.error}). Recorded runs still replay.</p>}
+        {api && !api.error && !api.live && !api.mock && <p className="source mock">Live play is switched off on this server. The recorded runs are real.</p>}
         {error && <p className="error" role="alert">{error}</p>}
 
         <section className="grid">
