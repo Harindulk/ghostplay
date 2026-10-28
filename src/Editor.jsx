@@ -54,7 +54,7 @@ export default function Editor({ level, onChange, solvable }) {
       </div>
       {lv ? <Board lv={lv} turn={0} onCell={set} label="Level editor: click or drag to paint the selected tile" /> : <p className="empty">Place one start and one exit.</p>}
       <div className="board-foot">
-        <span className={solvable.solvable ? 'ok' : 'bad'}>{solvable.solvable ? `Solvable in ${solvable.moves} moves` : 'Not solvable yet: the solver cannot reach the exit'}</span>
+        <span className={solvable.solvable ? 'ok' : 'bad'}>{solvable.solvable ? `Solvable in ${solvable.moves} moves` : solvable.exhausted ? 'Too complex to check: try fewer crates' : 'Not solvable yet: the solver cannot reach the exit'}</span>
         <span className="sizer">
           <button className="btn small" onClick={() => resize(-1, 0)} aria-label="Narrower">−</button>
           <span className="num">{level.grid[0].length} × {level.grid.length}</span>

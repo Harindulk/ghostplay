@@ -129,7 +129,7 @@ export default function App() {
     } catch (e) { setError(e.message); setPhase('reviewed'); }
   }
 
-  const solvable = useMemo(() => (lv ? solve(level) : { solvable: false }), [level, lv]);
+  const solvable = useMemo(() => (lv ? solve(level, 60000) : { solvable: false }), [level, lv]); // small budget keeps the editor responsive
   const busy = ['playing', 'reviewing', 'retesting'].includes(phase);
   const liveOk = api?.live || api?.mock;
   const finished = Object.values(live).filter((g) => g.outcome !== 'playing').length;
