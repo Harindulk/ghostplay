@@ -79,6 +79,17 @@ export default function App() {
     return () => clearTimeout(t);
   }, [playing, turn, maxTurn, results]);
 
+  // Space plays and pauses the replay (not while typing).
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.code !== 'Space' || !results || /INPUT|TEXTAREA|BUTTON|SELECT/.test(document.activeElement?.tagName)) return;
+      e.preventDefault();
+      setPlaying((p) => { if (!p && turn >= maxTurn) setTurn(0); return !p; });
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [results, turn, maxTurn]);
+
   // Before a run, tick the spike clock so the level's timing is visible.
   const idle = !results && phase === 'idle' && !editing;
   useEffect(() => {
