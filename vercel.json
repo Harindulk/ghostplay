@@ -1,0 +1,3 @@
+{
+  "functions": { "api/report.js": { "maxDuration": 60 }, "api/vision.js": { "maxDuration": 30 }, "api/step.js": { "maxDuration": 30 } }
+}
