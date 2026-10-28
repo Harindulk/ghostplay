@@ -99,7 +99,7 @@ h3 { margin: 0; font-size: 14px; font-weight: 600; }
 .tbl td { padding: 9px 0; border-top: 1px solid var(--rule); vertical-align: top; }
 .tbl th + th, .tbl td + td { padding-left: 12px; }
 .who { display: block; font-weight: 600; }
-.model { display: block; color: var(--muted); font-family: var(--mono); font-size: 11px; line-height: 16px; word-break: break-all; }
+.model { display: block; color: var(--muted); font-family: var(--mono); font-size: 11px; line-height: 16px; }
 .model.strong { color: var(--text); font-size: 12px; }
 .card-head .model { display: inline; }
 

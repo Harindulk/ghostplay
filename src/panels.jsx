@@ -24,7 +24,7 @@ export function Players({ summary, live, models }) {
             <tr key={id}>
               <td>
                 <span className="who"><i style={{ background: p.color }} />{p.label}</span>
-                <span className="model">{short(models?.[p.role])}{p.thinking ? ` · budget ${p.budget}` : ''}</span>
+                <span className="model" title={models?.[p.role]}>{short(models?.[p.role])}{p.thinking ? ` · budget ${p.budget}` : ''}</span>
               </td>
               <td className="num">{runs ? `${cleared}/${runs}` : '—'}{playing ? <span className="muted"> · {playing} playing</span> : null}</td>
               <td className="num">{runs ? died : '—'}</td>
