@@ -9,8 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --test lib/",
-    "smoke": "node --env-file-if-exists=.env scripts/smoke.js",
-    "showcase": "node --env-file-if-exists=.env scripts/record-showcase.js"
+    "smoke": "node --env-file-if-exists=.env scripts/smoke.js"
   },
   "dependencies": {
     "react": "^19.3.1",
