@@ -12,7 +12,7 @@ Nine AI playtesters play your game level, show you where players die and get stu
 
 I'm in Sri Lanka, and Nebius Token Factory doesn't accept cards issued here yet. Nebius staff confirmed this on the hackathon Discord on 28 and 29 October 2026, so I never got an API key. Every run in the demo and the video uses mock players. The app labels them on screen ("Mock players: this server has no Token Factory key, so nothing here comes from a model"). The mocks follow the solver's route with random, persona-shaped mistakes so the whole interface can be exercised. The mock design report just clears the tile where the most players died.
 
-The real path is written and tested against the Token Factory API shape, but it has never answered a live call:
+The real path is written and covered by tests with a mocked API, but it has never answered a live call:
 
 | Step | Code | Model on Token Factory |
 |---|---|---|
