@@ -124,8 +124,9 @@ export default function App() {
     } catch (e) { setError(e.message); setPhase(results ? 'played' : 'idle'); }
   }
 
+  // Report and re-test close the editor like start() does: an edit mid-call would reset the run the call reports on.
   async function writeReport() {
-    setError(null); setPhase('reviewing');
+    setEditing(false); setError(null); setPhase('reviewing');
     try {
       const out = await review(level, run.summary, run.results, cleanBoardImage(level), { onCall: addCall });
       setReview(out); setPhase('reviewed');
@@ -133,7 +134,7 @@ export default function App() {
   }
 
   async function applyAndRetest() {
-    setError(null); setLive({}); setPhase('retesting');
+    setEditing(false); setError(null); setLive({}); setPhase('retesting');
     try {
       const out = await playLive(review_.patched, { mock: api?.mock, onCall: addCall, onGhost: (g) => setLive((m) => ({ ...m, [g.id]: g })) });
       setRetest(out); setPhase('done'); setView('after'); setHeatKind('ghosts'); setTurn(0); setPlaying(true);
@@ -224,7 +225,7 @@ export default function App() {
               )}
             </div>
             {editing ? (
-              <Editor level={custom} onChange={(l) => { setCustom(l); setRun(null); setReview(null); setRetest(null); setCalls([]); setPhase('idle'); setTurn(0); setView('before'); }} solvable={solvable} />
+              <Editor level={custom} onChange={(l) => { setCustom(l); setError(null); setRun(null); setReview(null); setRetest(null); setCalls([]); setPhase('idle'); setTurn(0); setView('before'); }} solvable={solvable} />
             ) : lv ? (
               <>
                 <Board lv={boardLv} maxHeight={580} turn={turn} ghosts={ghosts} heat={heatKind !== 'ghosts' ? shown?.summary?.heat : null} heatKind={heatKind !== 'ghosts' ? heatKind : null} highlight={highlight} showSpikes={phase !== 'playing' && phase !== 'retesting'} canvasRef={boardCanvas} label={`${level.name}: ${finding(run?.summary) || 'not played yet'}`} />
