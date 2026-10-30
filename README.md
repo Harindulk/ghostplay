@@ -4,7 +4,7 @@ Nine AI playtesters play your game level, show you where players die and get stu
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-white.svg)](LICENSE)
 
-**Live demo (mock players):** _DEMO_URL_ · **Video:** _VIDEO_URL_ · Built for the Nebius x NVIDIA Global AI Hackathon (Best Apps and Agents).
+**Live demo (mock players):** https://ghostplay-nine.vercel.app · **Video:** on the Devpost entry · Built for the Nebius x NVIDIA Global AI Hackathon (Best Apps and Agents).
 
 ![Nine ghosts playing The Spike Hall](docs/screenshots/02-playing.png)
 
