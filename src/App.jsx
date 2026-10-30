@@ -187,7 +187,7 @@ export default function App() {
             <p className="finding" aria-live="polite">{finding(run?.summary) || 'Nine AI playtesters, three for each Nemotron skill level, play this level and show you where players die.'}</p>
           </div>
           <div className="title-actions">
-            {import.meta.env.DEV && run && run.source !== 'showcase' && phase !== 'playing' && <button className="btn" onClick={() => saveShowcase(levelId, { run, calls, review_, retest })}>Save as showcase</button>}
+            {import.meta.env.DEV && run?.source === 'live' && phase !== 'playing' && <button className="btn" onClick={() => saveShowcase(levelId, { run, calls, review_, retest })}>Save as showcase</button>}
             {levelId === 'custom' && <button className="btn" onClick={() => setEditing((e) => !e)} disabled={busy}>{editing ? 'Done editing' : 'Edit level'}</button>}
             {results && phase !== 'playing' && <button className="btn" onClick={start} disabled={busy || !liveOk}>Play again</button>}
             <button className="btn primary" onClick={next.run} disabled={next.disabled} title={!liveOk ? 'Live play is off on this server' : undefined}>{next.label}</button>
@@ -200,6 +200,7 @@ export default function App() {
           ))}
         </div>
 
+        {api?.mock && run?.source !== 'mock' && <p className="source mock">Mock players: this server has no Token Factory key, so nothing here comes from a model.</p>}
         {sourceLine && <p className={`source ${run.source}`}>{sourceLine}</p>}
         {api?.error && <p className="error" role="alert">Can't reach the Ghostplay API right now ({api.error}). Recorded runs still replay.</p>}
         {api && !api.error && !api.live && !api.mock && <p className="source mock">Live play is switched off on this server. The recorded runs are real.</p>}
